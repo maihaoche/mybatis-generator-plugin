@@ -8,15 +8,13 @@ Intellij Idea 插件是最适合实现这种工具需求。既便于团队内共
 
 ### 使用
 * 安装：在IntelliJ 的插件安装页面点击"Browse reposities..."，在弹窗中搜索"mybatisgenerator"
-
-<div align=center>
-![enter image description here](http://of8cu1h2w.bkt.clouddn.com/searchmybatisgenerator.png?imageView/2/w/500)
-</div>
+<p align="center">
+  <img src="http://of8cu1h2w.bkt.clouddn.com/searchmybatisgenerator.png?imageView/2/w/500"/>
+</p>
 * 入口：安装并重启后，在菜单栏Tools下可以看到插件的功能入口
-
-<div align=center>
-![enter image description here](http://of8cu1h2w.bkt.clouddn.com/entry.png?imageView/2/w/500)
-</div>
+<p align="center">
+  <img src="http://of8cu1h2w.bkt.clouddn.com/entry.png?imageView/2/w/500"/>
+</p>
 * 配置：需要配置用于连接到目标数据库的链接，用户名和密码以及生成的各个java类和xml文件的路径。
 * 生成mybatis代码：输入表名，点击确定，生成该表的mybatis代码。
 

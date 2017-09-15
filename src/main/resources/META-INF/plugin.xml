@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>com.maihaoche.mclaren.mybatisgenerator</id>
     <name>MybatisGenerator</name>
-    <version>1.3</version>
+    <version>1.3.1</version>
     <vendor email="yangyang1@maihaoche.com" url="http://b.maihaoche.com">MaiHaoChe.</vendor>
 
     <description><![CDATA[
@@ -11,8 +11,10 @@
     ]]></description>
 
     <change-notes><![CDATA[
-      Version 1.3.<br>
+      Version 1.3.1<br>
       The version fix some serious bugs,i.e, no linefeed and blocking the ide.<br>
+      In addition, this version add a function to choose which module to put the manger codes,<br>
+      which is necessary for many projects.
       By now ,this version support only mysql and the target mybatis version is 1.2.0. That is<br>
          <dependency><br>
               <groupId>org.mybatis.spring.boot</groupId><br>

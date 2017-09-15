@@ -20,13 +20,15 @@ class MyBatisGenConst {
     companion object {
         var sConfigured = false
         // 包名
-        var TARGET_MODULE = ""
+        var DAO_MODULE = ""
         // 工作目录
         var DO_PACKAGE = ""
         var QUERY_PACKAGE = ""
         var MAPPER_PACKAGE = ""
-        var MANAGER_PACKAGE = ""
         var MAPPER_EXT_PACKAGE = ""
+
+        var MANAGER_MODULE = ""
+        var MANAGER_PACKAGE = ""
         var MANAGER_IMPL_PACKAGE = ""
         // mapper xml 输出目录
         var MAPPER_XML_DIR = ""
@@ -118,12 +120,12 @@ class MyBatisGenConst {
                 sConfigured = false
             }
 
-            PlatformUtil.getData(MyConstant.TARGET_MODULE, "").let {
+            PlatformUtil.getData(MyConstant.DAO_MODULE, "").let {
                 if (it.isNullOrBlank()) {
-                    TARGET_MODULE = ""
+                    DAO_MODULE = ""
                     onNullReturn()
                 } else {
-                    TARGET_MODULE = it
+                    DAO_MODULE = it
                 }
             }
             PlatformUtil.getData(MyConstant.DO_PACKAGE, "").let {
@@ -142,14 +144,6 @@ class MyBatisGenConst {
                     QUERY_PACKAGE = it
                 }
             }
-            PlatformUtil.getData(MyConstant.MANAGER_PACKAGE, "").let {
-                if (it.isNullOrBlank()) {
-                    MANAGER_PACKAGE = ""
-                    onNullReturn()
-                } else {
-                    MANAGER_PACKAGE = it
-                }
-            }
             PlatformUtil.getData(MyConstant.MAPPER_PACKAGE, "").let {
                 if (it.isNullOrBlank()) {
                     MAPPER_PACKAGE = ""
@@ -158,39 +152,58 @@ class MyBatisGenConst {
                     MAPPER_PACKAGE = it
                 }
             }
-            setConfig(TARGET_MODULE, DO_PACKAGE, QUERY_PACKAGE, MAPPER_PACKAGE, MANAGER_PACKAGE, project)
+            PlatformUtil.getData(MyConstant.MANAGER_MODULE, "").let {
+                if (it.isNullOrBlank()) {
+                    MANAGER_MODULE = ""
+                    onNullReturn()
+                } else {
+                    MANAGER_MODULE = it
+                }
+            }
+            PlatformUtil.getData(MyConstant.MANAGER_PACKAGE, "").let {
+                if (it.isNullOrBlank()) {
+                    MANAGER_PACKAGE = ""
+                    onNullReturn()
+                } else {
+                    MANAGER_PACKAGE = it
+                }
+            }
+            setConfig(DAO_MODULE, DO_PACKAGE, QUERY_PACKAGE, MAPPER_PACKAGE, MANAGER_MODULE, MANAGER_PACKAGE, project)
             return sConfigured
         }
 
         fun setConfig(
-                modelueName: String,
+                daoModule: String,
                 doPackage: String,
                 queryPackage: String,
                 mapperPackage: String,
+                managerModule: String,
                 managerPackage: String,
                 project: Project?
         ) {
             if (null == project) {
                 return
             }
-            TARGET_MODULE = modelueName
+            DAO_MODULE = daoModule
             DO_PACKAGE = doPackage
             QUERY_PACKAGE = queryPackage
             MAPPER_PACKAGE = mapperPackage
+            MANAGER_MODULE = managerModule
             MANAGER_PACKAGE = managerPackage
             MAPPER_EXT_PACKAGE = MAPPER_PACKAGE + ".ext"
             MANAGER_IMPL_PACKAGE = MANAGER_PACKAGE + ".impl"
-            var rootPath = project.baseDir.path + File.separator + TARGET_MODULE
+            var daoPath = project.baseDir.path + File.separator + DAO_MODULE
+            var managerPath = project.baseDir.path + File.separator + MANAGER_MODULE
             //资源文件路径
-            MAPPER_XML_DIR = rootPath + "/src/main/resources/mapper/"
-            MAPPER_EXT_XML_DIR = rootPath + "/src/main/resources/mapper/ext/"
+            MAPPER_XML_DIR = daoPath + "/src/main/resources/mapper/"
+            MAPPER_EXT_XML_DIR = daoPath + "/src/main/resources/mapper/ext/"
             //代码文件路径
-            MAPPER_DO_DIR = rootPath + "/src/main/java/" + getFilePathFromPackage(DO_PACKAGE)
-            MAPPER_QUERY_DIR = rootPath + "/src/main/java/" + getFilePathFromPackage(QUERY_PACKAGE)
-            MAPPER_JAVA_DIR = rootPath + "/src/main/java/" + getFilePathFromPackage(MAPPER_PACKAGE)
-            MANAGER_JAVA_DIR = rootPath + "/src/main/java/" + getFilePathFromPackage(MANAGER_PACKAGE)
+            MAPPER_DO_DIR = daoPath + "/src/main/java/" + getFilePathFromPackage(DO_PACKAGE)
+            MAPPER_QUERY_DIR = daoPath + "/src/main/java/" + getFilePathFromPackage(QUERY_PACKAGE)
+            MAPPER_JAVA_DIR = daoPath + "/src/main/java/" + getFilePathFromPackage(MAPPER_PACKAGE)
+            MAPPER_EXT_JAVA_DIR = daoPath + "/src/main/java/" + getFilePathFromPackage(MAPPER_EXT_PACKAGE)
+            MANAGER_JAVA_DIR = managerPath + "/src/main/java/" + getFilePathFromPackage(MANAGER_PACKAGE)
             MANAGER_IMPL_JAVA_DIR = MANAGER_JAVA_DIR + "/impl"
-            MAPPER_EXT_JAVA_DIR = rootPath + "/src/main/java/" + getFilePathFromPackage(MAPPER_EXT_PACKAGE)
             sConfigured = true
         }
 
@@ -199,11 +212,12 @@ class MyBatisGenConst {
         }
 
         fun clearConfig() {
-            TARGET_MODULE = ""
+            DAO_MODULE = ""
             DO_PACKAGE = ""
             QUERY_PACKAGE = ""
             MAPPER_PACKAGE = ""
             MAPPER_EXT_PACKAGE = ""
+            MANAGER_MODULE = ""
             MANAGER_PACKAGE = ""
             MANAGER_IMPL_PACKAGE = ""
             MAPPER_XML_DIR = ""

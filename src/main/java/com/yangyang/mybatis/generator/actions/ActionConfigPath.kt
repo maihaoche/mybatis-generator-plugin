@@ -31,27 +31,31 @@ class ActionConfigPath : AnAction() {
         //总的内容
         val content = JPanel(GridBagLayout())
 
-        val targetModule = UIUtil.addTextInputToPanel("请输入生成目录的module的名字:        ", MyConstant.TARGET_MODULE, content)
-        val doPackagePath = UIUtil.addTextInputToPanel("请输入DO生成目录的package全名:        ", MyConstant.DO_PACKAGE, content)
-        val queryPackagePath = UIUtil.addTextInputToPanel("请输入Query对象生成目录的package全名:        ", MyConstant.QUERY_PACKAGE, content)
-        val managerPackagePath = UIUtil.addTextInputToPanel("请输入Manager对象生成目录的package全名:        ", MyConstant.MANAGER_PACKAGE, content)
-        val mapperPackagePath = UIUtil.addTextInputToPanel("请输入Mapper对象生成目录的package全名:        ", MyConstant.MAPPER_PACKAGE, content)
+        val daoModule = UIUtil.addTextInputToPanel("Dao的module名:        ", MyConstant.DAO_MODULE, content)
+        val doPackagePath = UIUtil.addTextInputToPanel("DO目录的package全名:        ", MyConstant.DO_PACKAGE, content)
+        val queryPackagePath = UIUtil.addTextInputToPanel("Query目录的package全名:        ", MyConstant.QUERY_PACKAGE, content)
+        val mapperPackagePath = UIUtil.addTextInputToPanel("Mapper目录的package全名:        ", MyConstant.MAPPER_PACKAGE, content)
+        val managerModule = UIUtil.addTextInputToPanel("Manager所在的module名:        ", MyConstant.MANAGER_MODULE, content)
+        val managerPackagePath = UIUtil.addTextInputToPanel("Manager目录的package全名:        ", MyConstant.MANAGER_PACKAGE, content)
+
 
         //清空缓存
         val clearCacheBtn = JButton("清除缓存")
         clearCacheBtn.addActionListener {
-            PlatformUtil.setData(MyConstant.TARGET_MODULE, "")
+            PlatformUtil.setData(MyConstant.DAO_MODULE, "")
             PlatformUtil.setData(MyConstant.DO_PACKAGE, "")
             PlatformUtil.setData(MyConstant.QUERY_PACKAGE, "")
-            PlatformUtil.setData(MyConstant.MANAGER_PACKAGE, "")
             PlatformUtil.setData(MyConstant.MAPPER_PACKAGE, "")
+            PlatformUtil.setData(MyConstant.MANAGER_MODULE, "")
+            PlatformUtil.setData(MyConstant.MANAGER_PACKAGE, "")
             MyBatisGenConst.clearConfig()
             NotificationUtil.info("清除缓存成功", project)
-            targetModule.text = ""
+            daoModule.text = ""
             doPackagePath.text = ""
             queryPackagePath.text = ""
-            managerPackagePath.text = ""
             mapperPackagePath.text = ""
+            managerModule.text = ""
+            managerPackagePath.text = ""
         }
         clearCacheBtn.border = IdeBorderFactory.createEmptyBorder(14, 4, 4, 4)
         content.add(clearCacheBtn, ExternalSystemUiUtil.getLabelConstraints(0))
@@ -62,22 +66,26 @@ class ActionConfigPath : AnAction() {
             if (it) {
                 if (doPackagePath.text.trim().isNullOrBlank()
                         || queryPackagePath.text.trim().isNullOrBlank()
+                        || managerModule.text.trim().isNullOrBlank()
                         || managerPackagePath.text.trim().isNullOrBlank()
                         || mapperPackagePath.text.trim().isNullOrBlank()
                         ) {
+                    NotificationUtil.popInfo("配置不能为空", event)
                     return@showDialog
                 }
-                PlatformUtil.setData(MyConstant.TARGET_MODULE, targetModule.text)
+                PlatformUtil.setData(MyConstant.DAO_MODULE, daoModule.text)
                 PlatformUtil.setData(MyConstant.DO_PACKAGE, doPackagePath.text)
                 PlatformUtil.setData(MyConstant.QUERY_PACKAGE, queryPackagePath.text)
                 PlatformUtil.setData(MyConstant.MAPPER_PACKAGE, mapperPackagePath.text)
+                PlatformUtil.setData(MyConstant.MANAGER_MODULE, managerModule.text)
                 PlatformUtil.setData(MyConstant.MANAGER_PACKAGE, managerPackagePath.text)
                 MyBatisGenConst.setConfig(
-                        targetModule.text,
+                        daoModule.text,
                         doPackagePath.text,
                         queryPackagePath.text,
-                        managerPackagePath.text,
                         mapperPackagePath.text,
+                        managerModule.text,
+                        managerPackagePath.text,
                         project)
                 NotificationUtil.popInfo("路径配置修改成功", event)
             }

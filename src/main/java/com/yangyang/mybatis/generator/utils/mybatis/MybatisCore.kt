@@ -468,9 +468,9 @@ class MybatisCore {
             param.put(MyBatisGenConst.VP_DO_PACKAGE, MyBatisGenConst.DO_PACKAGE)
             param.put(MyBatisGenConst.VP_QUERY_PACKAGE, MyBatisGenConst.QUERY_PACKAGE)
             param.put(MyBatisGenConst.VP_MAPPER_PACKAGE, MyBatisGenConst.MAPPER_PACKAGE)
+            param.put(MyBatisGenConst.VP_MAPPER_EXT_PACKAGE, MyBatisGenConst.MAPPER_EXT_PACKAGE)
             param.put(MyBatisGenConst.VP_MANAGER_PACKAGE, MyBatisGenConst.MANAGER_PACKAGE)
             param.put(MyBatisGenConst.VP_MANAGER_IMPL_PACKAGE, MyBatisGenConst.MANAGER_IMPL_PACKAGE)
-            param.put(MyBatisGenConst.VP_MAPPER_EXT_PACKAGE, MyBatisGenConst.MAPPER_EXT_PACKAGE)
             param.put(MyBatisGenConst.VP_CLASS_NAME, className)
             param.put(MyBatisGenConst.VP_MAPPER_PROPERTY_NAME, className.substring(0, 1).toLowerCase() + className.substring(1) + MyBatisGenConst.MAPPER_EXT_SUFFIX)
 
@@ -592,7 +592,7 @@ class MybatisCore {
                         writeStringToFile(mapperExtOutFile, mapperExtResult, project)
                     }
                 } catch (e: IOException) {
-                    print("create file error："+e)
+                    print("create file error：" + e)
                 }
 
             }
@@ -653,7 +653,7 @@ class MybatisCore {
                 if (lineStr == null) {
                     break
                 }
-                fileStr += "\n" + lineStr
+                fileStr += lineStr + "\n"
             }
             return fileStr
         }

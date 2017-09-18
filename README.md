@@ -15,7 +15,7 @@ Intellij Idea 插件是最适合实现这种工具需求。既便于团队内共
 <p align="center">
   <img src="http://of8cu1h2w.bkt.clouddn.com/entry.png?imageView/2/w/500"/>
 </p>
-* 配置：需要配置用于连接到目标数据库的链接，用户名和密码以及生成的各个java类和xml文件的路径。
+* 配置：需要配置用于连接到目标数据库的链接，用户名和密码以及生成的各个java类和xml文件的路径。<font color=red>卖好车内部使用，请在"是否用于卖好车内部代码"出选择"是"。</font>
 * 生成mybatis代码：输入表名，点击确定，生成该表的mybatis代码。
 
 ### 实现

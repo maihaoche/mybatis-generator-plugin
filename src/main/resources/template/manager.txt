@@ -1,6 +1,6 @@
 package ${managerPackage};
 
-import com.subaru.common.query.PageResult;
+import ${daoPackage}.PageResult;
 import ${doPackage}.${className}${doSuffix};
 import ${queryPackage}.${className}${queryPrefix};
 

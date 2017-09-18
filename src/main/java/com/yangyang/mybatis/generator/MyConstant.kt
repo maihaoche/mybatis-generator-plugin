@@ -16,13 +16,10 @@ class MyConstant {
         val DB_PW = "db_pw"//数据库的密码
         // -------------------------生成数据的一些路径的配置key-------------------------
         val DAO_MODULE = "dao_module"//dao的目录
-        val DO_PACKAGE = "dao_package"//do生成目录
-        val QUERY_PACKAGE = "query_package"//查询语句生成目录
-        val MAPPER_PACKAGE = "mapper_package"//mapper生成目录
+        val DAO_PACKAGE = "dao_package"//dao的package名
         val MANAGER_MODULE = "namager_module"//manager所在的目录
         val MANAGER_PACKAGE = "manager_package"//manager生成目录
-
-        val TABLE_PREFIX = "table_prefix"//数据库表名字的前缀
+        val MHC_STAFF = "mhc_staff"//是否生成卖好车内部的代码
 
         //-------------------------内部字段-------------------------
         val TABLE_HISTORY = "table_history"//保存历史选中的表名。

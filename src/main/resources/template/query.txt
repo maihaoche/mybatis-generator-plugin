@@ -1,8 +1,8 @@
 package ${queryPackage};
 
 
-import com.subaru.common.query.BaseCriteria;
-import com.subaru.common.query.BaseQuery;
+import ${daoPackage}.BaseCriteria;
+import ${daoPackage}.BaseQuery;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 

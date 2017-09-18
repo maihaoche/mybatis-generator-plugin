@@ -9,16 +9,12 @@ import org.apache.commons.lang3.math.NumberUtils
 import org.apache.velocity.VelocityContext
 import org.apache.velocity.app.Velocity
 import java.io.*
-import java.nio.charset.Charset
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.sql.*
 import java.util.*
 import java.util.regex.Pattern
 import kotlin.collections.ArrayList
-import org.apache.velocity.runtime.RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS
-import org.apache.velocity.app.VelocityEngine
-import org.apache.velocity.runtime.RuntimeConstants
 
 
 /**
@@ -448,40 +444,27 @@ class MybatisCore {
                 // 去掉分库分表后面的表后缀，如_0001
                 tableLocal = tableLocal.replace(MyBatisGenConst.SHARDING_SUFFIX_REG.toRegex(), "")
             }
-
             val className = getClassName(tableLocal)
-
-            val doTemplate = readFileToString(MyBatisGenConst.DO_TEMPLATE)
-
-            val queryTemplate = readFileToString(MyBatisGenConst.QUERY_TEMPLATE)
-
-            val sqlmapTemplate = readFileToString(MyBatisGenConst.SQLMAP_TEMPLATE)
-            val mapperTemplate = readFileToString(MyBatisGenConst.MAPPER_TEMPLATE)
-            val managerTemplate = readFileToString(MyBatisGenConst.MANAGER_TEMPLATE)
-            val managerImplTemplate = readFileToString(MyBatisGenConst.MANAGER_IMPL_TEMPLATE)
-            val sqlmapExtTemplate = readFileToString(MyBatisGenConst.SQLMAP_EXT_TEMPLATE)
-            val mapperExtTemplate = readFileToString(MyBatisGenConst.MAPPER_EXT_TEMPLATE)
-
-
             val param = HashMap<String, Any>()
-
-            param.put(MyBatisGenConst.VP_DO_PACKAGE, MyBatisGenConst.DO_PACKAGE)
-            param.put(MyBatisGenConst.VP_QUERY_PACKAGE, MyBatisGenConst.QUERY_PACKAGE)
-            param.put(MyBatisGenConst.VP_MAPPER_PACKAGE, MyBatisGenConst.MAPPER_PACKAGE)
-            param.put(MyBatisGenConst.VP_MAPPER_EXT_PACKAGE, MyBatisGenConst.MAPPER_EXT_PACKAGE)
-            param.put(MyBatisGenConst.VP_MANAGER_PACKAGE, MyBatisGenConst.MANAGER_PACKAGE)
-            param.put(MyBatisGenConst.VP_MANAGER_IMPL_PACKAGE, MyBatisGenConst.MANAGER_IMPL_PACKAGE)
+            if (MyBatisGenConst.sIsMHCStaff) {
+                param.put(MyBatisGenConst.VP_DAO_PACKAGE, "com.subaru.common.query")
+            } else {
+                param.put(MyBatisGenConst.VP_DAO_PACKAGE, MyBatisGenConst.sDaoPackage)
+            }
+            param.put(MyBatisGenConst.VP_DO_PACKAGE, MyBatisGenConst.sDaoPackage + ".model")
+            param.put(MyBatisGenConst.VP_QUERY_PACKAGE, MyBatisGenConst.sDaoPackage + ".query")
+            param.put(MyBatisGenConst.VP_MAPPER_PACKAGE, MyBatisGenConst.sDaoPackage + ".mapper")
+            param.put(MyBatisGenConst.VP_MAPPER_EXT_PACKAGE, MyBatisGenConst.sDaoPackage + ".mapper.ext")
+            param.put(MyBatisGenConst.VP_MANAGER_PACKAGE, MyBatisGenConst.sManagerPackage + ".manager")
+            param.put(MyBatisGenConst.VP_MANAGER_IMPL_PACKAGE, MyBatisGenConst.sManagerImplPackage)
             param.put(MyBatisGenConst.VP_CLASS_NAME, className)
             param.put(MyBatisGenConst.VP_MAPPER_PROPERTY_NAME, className.substring(0, 1).toLowerCase() + className.substring(1) + MyBatisGenConst.MAPPER_EXT_SUFFIX)
-
             param.put(MyBatisGenConst.VP_LIST, paramList)
             param.put(MyBatisGenConst.VP_QUERY_PREFIX, MyBatisGenConst.QUERY_PREFIX)
             param.put(MyBatisGenConst.VP_DO_SUFFIX, MyBatisGenConst.DO_SUFFIX)
             param.put(MyBatisGenConst.VP_MAPPER_SUFFIX, MyBatisGenConst.MAPPER_SUFFIX)
             param.put(MyBatisGenConst.VP_MANAGER_SUFFIX, MyBatisGenConst.MANAGER_SUFFIX)
             param.put(MyBatisGenConst.VP_MANAGER_IMPL_SUFFIX, MyBatisGenConst.MANAGER_IMPL_SUFFIX)
-
-
             param.put(MyBatisGenConst.VP_MAPPER_EXT_SUFFIX, MyBatisGenConst.MAPPER_EXT_SUFFIX)
 
             var vpTableName = tableLocal.toLowerCase()
@@ -494,9 +477,6 @@ class MybatisCore {
 
             param.put(MyBatisGenConst.VP_SERIAL_VERSION_UID2, "" + (Math.random() * 1000000000000000000L).toLong())
 
-
-            val doResult = merge(doTemplate, param)
-
             // 获取字段名不包含 id gmt_create gmt_modified TODO 去掉主键
             val sqlmapParamList = getSqlmapParamList(paramList, pks.toString())
             param.put(MyBatisGenConst.VP_LIST, sqlmapParamList)
@@ -507,114 +487,55 @@ class MybatisCore {
             param.put(MyBatisGenConst.VP_COLS, cols)
             param.put(MyBatisGenConst.VP_PRIMARY_KEY, pks.toString())
             param.put(MyBatisGenConst.VP_PROP_PRIMARY_KEY, getPropName(pks))
-            val sqlmapResult = merge(sqlmapTemplate, param)
-            val mapperResult = merge(mapperTemplate, param)
-            val managerResult = merge(managerTemplate, param)
-            val managerImplResult = merge(managerImplTemplate, param)
-            val queryResult = merge(queryTemplate, param)
-            val mapperExtResult = merge(mapperExtTemplate, param)
-            val sqlmapExtResult = merge(sqlmapExtTemplate, param)
 
-            val doOutFilePath = MyBatisGenConst.MAPPER_DO_DIR + "/" + className + MyBatisGenConst.DO_SUFFIX + ".java"
-            val queryOutFilePath = MyBatisGenConst.MAPPER_QUERY_DIR + "/" + className + MyBatisGenConst.QUERY_PREFIX + ".java"
-            val sqlmapOutFilePath = MyBatisGenConst.MAPPER_XML_DIR + "/" + className + MyBatisGenConst.MAPPER_SUFFIX + ".xml"
-            val mapperOutFilePath = MyBatisGenConst.MAPPER_JAVA_DIR + "/" + className + MyBatisGenConst.MAPPER_SUFFIX + ".java"
-            val managerOutFilePath = MyBatisGenConst.MANAGER_JAVA_DIR + "/" + className + MyBatisGenConst.MANAGER_SUFFIX + ".java"
-            val managerImplOutFilePath = MyBatisGenConst.MANAGER_IMPL_JAVA_DIR + "/" + className + MyBatisGenConst.MANAGER_IMPL_SUFFIX + ".java"
-            val sqlmapExtOutFilePath = MyBatisGenConst.MAPPER_EXT_XML_DIR + "/" + className + MyBatisGenConst.MAPPER_EXT_SUFFIX + ".xml"
-            val mapperExtOutFilePath = MyBatisGenConst.MAPPER_EXT_JAVA_DIR + "/" + className + MyBatisGenConst.MAPPER_EXT_SUFFIX + ".java"
-
-            var success = File(MyBatisGenConst.MAPPER_DO_DIR).mkdirs()
-            if (success) {
-                NotificationUtil.info(String.format("目录 %s 创建成功", MyBatisGenConst.MAPPER_DO_DIR), project)
-            }
-            success = File(MyBatisGenConst.MAPPER_QUERY_DIR).mkdirs()
-            if (success) {
-                NotificationUtil.info(String.format("目录 %s 创建成功", MyBatisGenConst.MAPPER_QUERY_DIR), project)
-            }
-            success = File(MyBatisGenConst.MANAGER_JAVA_DIR).mkdirs()
-            if (success) {
-                NotificationUtil.info(String.format("目录 %s 创建成功", MyBatisGenConst.MANAGER_JAVA_DIR), project)
-            }
-            success = File(MyBatisGenConst.MANAGER_IMPL_JAVA_DIR).mkdirs()
-            if (success) {
-                NotificationUtil.info(String.format("目录 %s 创建成功", MyBatisGenConst.MANAGER_IMPL_JAVA_DIR), project)
-            }
-
-            success = File(MyBatisGenConst.MAPPER_XML_DIR).mkdirs()
-            if (success) {
-                NotificationUtil.info(String.format("目录 %s 创建成功", MyBatisGenConst.MAPPER_XML_DIR), project)
-            }
-            success = File(MyBatisGenConst.MAPPER_JAVA_DIR).mkdirs()
-            if (success) {
-                NotificationUtil.info(String.format("目录 %s 创建成功", MyBatisGenConst.MAPPER_JAVA_DIR), project)
-            }
-            success = File(MyBatisGenConst.MAPPER_EXT_XML_DIR).mkdirs()
-            if (success) {
-                NotificationUtil.info(String.format("目录 %s 创建成功", MyBatisGenConst.MAPPER_EXT_XML_DIR), project)
-            }
-            success = File(MyBatisGenConst.MAPPER_EXT_JAVA_DIR).mkdirs()
-            if (success) {
-                NotificationUtil.info(String.format("目录 %s 创建成功", MyBatisGenConst.MAPPER_EXT_JAVA_DIR), project)
-            }
-
-            val sqlmapOutFile = File(sqlmapOutFilePath)
-            if (!sqlmapOutFile.exists()) {
-                sqlmapOutFile.createNewFile()
-            }
-            val doOutFile = File(doOutFilePath)
-            if (!doOutFile.exists()) {
-                doOutFile.createNewFile()
-            }
-            val mapperOutFile = File(mapperOutFilePath)
-            if (!mapperOutFile.exists()) {
-                mapperOutFile.createNewFile()
-            }
-
-
-            val queryOutFile = File(queryOutFilePath)
-            if (!queryOutFile.exists()) {
-                queryOutFile.createNewFile()
-            }
-
-            //强行覆盖的文件
-            writeStringToFile(sqlmapOutFile, sqlmapResult, project)
-            writeStringToFile(doOutFile, doResult, project)
-            writeStringToFile(queryOutFile, queryResult, project)
-            writeStringToFile(mapperOutFile, mapperResult, project)
-
-
-            //如果存在则不会重新产生的文件。
-            val mapperExtOutFile = File(mapperExtOutFilePath)
-            if (!mapperExtOutFile.exists()) {
-                try {
-                    if (mapperExtOutFile.createNewFile()) {
-                        writeStringToFile(mapperExtOutFile, mapperExtResult, project)
+            var fileGenerate = { packagePath: String, fileName: String, templatePath: String ->
+                File(packagePath).mkdirs()
+                if (!File(packagePath).exists()) {
+                    NotificationUtil.info(String.format("目录 %s 创建失败", packagePath), project)
+                } else {
+                    val filePath = packagePath + File.separator + fileName
+                    val resultFile = File(filePath)
+                    if (!resultFile.exists()) {
+                        if (resultFile.createNewFile()) {
+                            val resultStr = merge(readFileToString(templatePath), param)
+                            writeStringToFile(resultFile, resultStr, project)
+                        } else {
+                            NotificationUtil.error(String.format("文件 %s 创建失败", filePath))
+                        }
+                    } else {
+                        NotificationUtil.error(String.format("文件 %s 已经存在,不替换旧文件", filePath))
                     }
-                } catch (e: IOException) {
-                    print("create file error：" + e)
-                }
-
-            }
-
-            val sqlmapExtOutFile = File(sqlmapExtOutFilePath)
-            if (!sqlmapExtOutFile.exists()) {
-
-                if (sqlmapExtOutFile.createNewFile()) {
-                    writeStringToFile(sqlmapExtOutFile, sqlmapExtResult, project)
                 }
             }
-
-
-            val managerOutFile = File(managerOutFilePath)
-            if (!managerOutFile.exists()) {
-                createAndWriteFile(managerResult, managerOutFilePath, managerOutFile, project)
+            //如果不是mhc内部使用的代码，还需要额外生成几个基础类的文件
+            if (!MyBatisGenConst.sIsMHCStaff) {
+                //PageResult
+                fileGenerate(MyBatisGenConst.sBaseDir, "PageResult.java", MyBatisGenConst.PAGERESULT_TEMPLATE)
+                //Criteria
+                fileGenerate(MyBatisGenConst.sBaseDir, "Criterion.java", MyBatisGenConst.CRITERIA_TEMPLATE)
+                //BaseCriteria
+                fileGenerate(MyBatisGenConst.sBaseDir, "BaseCriteria.java", MyBatisGenConst.BASE_CRITERIA_TEMPLATE)
+                //BaseQuery
+                fileGenerate(MyBatisGenConst.sBaseDir, "BaseQuery.java", MyBatisGenConst.BASE_QUERY_TEMPLATE)
             }
+            //DO
+            fileGenerate(MyBatisGenConst.sDoJavaDir, className + MyBatisGenConst.DO_SUFFIX + ".java", MyBatisGenConst.DO_TEMPLATE)
+            //Query
+            fileGenerate(MyBatisGenConst.sQueryJavaDir, className + MyBatisGenConst.QUERY_PREFIX + ".java", MyBatisGenConst.QUERY_TEMPLATE)
+            //Mapper
+            fileGenerate(MyBatisGenConst.sMapperJavaDir, className + MyBatisGenConst.MAPPER_SUFFIX + ".java", MyBatisGenConst.MAPPER_TEMPLATE)
+            //MapperExt
+            fileGenerate(MyBatisGenConst.sMapperExtJavaDir, className + MyBatisGenConst.MAPPER_EXT_SUFFIX + ".java", MyBatisGenConst.MAPPER_EXT_TEMPLATE)
+            //Manager
+            fileGenerate(MyBatisGenConst.sManagerJavaDir, className + MyBatisGenConst.MANAGER_SUFFIX + ".java", MyBatisGenConst.MANAGER_TEMPLATE)
+            //ManagerImple
+            fileGenerate(MyBatisGenConst.sManagerImplJavaDir, className + MyBatisGenConst.MANAGER_IMPL_SUFFIX + ".java", MyBatisGenConst.MANAGER_IMPL_TEMPLATE)
+            //------------------------xml----------------------
+            //map
+            fileGenerate(MyBatisGenConst.sMapperXmlDir, className + MyBatisGenConst.MAPPER_SUFFIX + ".xml", MyBatisGenConst.SQLMAP_TEMPLATE)
+            //map_ext
+            fileGenerate(MyBatisGenConst.sMapperExtXmlDir, className + MyBatisGenConst.MAPPER_EXT_SUFFIX + ".xml", MyBatisGenConst.SQLMAP_EXT_TEMPLATE)
 
-            val managerImplOutFile = File(managerImplOutFilePath)
-            if (!managerImplOutFile.exists()) {
-                createAndWriteFile(managerImplResult, managerImplOutFilePath, managerImplOutFile, project)
-            }
         }
 
         @Throws(Exception::class)

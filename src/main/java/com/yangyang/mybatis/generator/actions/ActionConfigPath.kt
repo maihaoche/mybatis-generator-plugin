@@ -3,13 +3,16 @@ package main.java.com.yangyang.mybatis.generator.actions
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.externalSystem.util.ExternalSystemUiUtil
+import com.intellij.ui.CheckBoxList
 import com.intellij.ui.IdeBorderFactory
+import com.intellij.ui.components.CheckBox
 import main.java.com.yangyang.mybatis.generator.MyConstant
 import main.java.com.yangyang.mybatis.generator.utils.NotificationUtil
 import main.java.com.yangyang.mybatis.generator.utils.PlatformUtil
 import main.java.com.yangyang.mybatis.generator.utils.UIUtil
 import main.java.com.yangyang.mybatis.generator.utils.mybatis.MyBatisGenConst
 import java.awt.GridBagLayout
+import java.util.*
 import javax.swing.*
 
 
@@ -28,32 +31,34 @@ class ActionConfigPath : AnAction() {
             return
         }
         val project = event.getProject()
-        //总的内容
+
         val content = JPanel(GridBagLayout())
 
-        val daoModule = UIUtil.addTextInputToPanel("Dao的module名:        ", MyConstant.DAO_MODULE, content)
-        val doPackagePath = UIUtil.addTextInputToPanel("DO目录的package全名:        ", MyConstant.DO_PACKAGE, content)
-        val queryPackagePath = UIUtil.addTextInputToPanel("Query目录的package全名:        ", MyConstant.QUERY_PACKAGE, content)
-        val mapperPackagePath = UIUtil.addTextInputToPanel("Mapper目录的package全名:        ", MyConstant.MAPPER_PACKAGE, content)
+        val daoModule = UIUtil.addTextInputToPanel("DO,Query,Mapper所在的module名:        ", MyConstant.DAO_MODULE, content)
+        val daoPackagePath = UIUtil.addTextInputToPanel("DO,Query,Mapper所在的package名:        ", MyConstant.DAO_PACKAGE, content)
         val managerModule = UIUtil.addTextInputToPanel("Manager所在的module名:        ", MyConstant.MANAGER_MODULE, content)
-        val managerPackagePath = UIUtil.addTextInputToPanel("Manager目录的package全名:        ", MyConstant.MANAGER_PACKAGE, content)
-
-
+        val managerPackagePath = UIUtil.addTextInputToPanel("Manager所在的package:        ", MyConstant.MANAGER_PACKAGE, content)
+        content.add(JLabel("是否用于卖好车内部代码:        "), ExternalSystemUiUtil.getFillLineConstraints(0))
+        // 卖好车内部圆通的选择
+        val isMHCStaffCheck = CheckBoxList<String>()
+        isMHCStaffCheck.setItems(Arrays.asList("是"), null)
+        isMHCStaffCheck.border = IdeBorderFactory.createEmptyBorder(8)
+        content.add(isMHCStaffCheck, ExternalSystemUiUtil.getFillLineConstraints(0))
+        if (PlatformUtil.getData(MyConstant.MHC_STAFF, false)) {
+            isMHCStaffCheck.setItemSelected("是", true)
+        }
         //清空缓存
         val clearCacheBtn = JButton("清除缓存")
         clearCacheBtn.addActionListener {
             PlatformUtil.setData(MyConstant.DAO_MODULE, "")
-            PlatformUtil.setData(MyConstant.DO_PACKAGE, "")
-            PlatformUtil.setData(MyConstant.QUERY_PACKAGE, "")
-            PlatformUtil.setData(MyConstant.MAPPER_PACKAGE, "")
+            PlatformUtil.setData(MyConstant.DAO_PACKAGE, "")
             PlatformUtil.setData(MyConstant.MANAGER_MODULE, "")
             PlatformUtil.setData(MyConstant.MANAGER_PACKAGE, "")
+            isMHCStaffCheck.clearSelection()
             MyBatisGenConst.clearConfig()
             NotificationUtil.info("清除缓存成功", project)
             daoModule.text = ""
-            doPackagePath.text = ""
-            queryPackagePath.text = ""
-            mapperPackagePath.text = ""
+            daoPackagePath.text = ""
             managerModule.text = ""
             managerPackagePath.text = ""
         }
@@ -64,28 +69,26 @@ class ActionConfigPath : AnAction() {
 
         UIUtil.showDialog("路径配置参数", project, content, {
             if (it) {
-                if (doPackagePath.text.trim().isNullOrBlank()
-                        || queryPackagePath.text.trim().isNullOrBlank()
+                if (daoPackagePath.text.trim().isNullOrBlank()
                         || managerModule.text.trim().isNullOrBlank()
                         || managerPackagePath.text.trim().isNullOrBlank()
-                        || mapperPackagePath.text.trim().isNullOrBlank()
                         ) {
-                    NotificationUtil.popInfo("配置不能为空", event)
+                    NotificationUtil.popError("路径配置不能为空", event)
                     return@showDialog
                 }
                 PlatformUtil.setData(MyConstant.DAO_MODULE, daoModule.text)
-                PlatformUtil.setData(MyConstant.DO_PACKAGE, doPackagePath.text)
-                PlatformUtil.setData(MyConstant.QUERY_PACKAGE, queryPackagePath.text)
-                PlatformUtil.setData(MyConstant.MAPPER_PACKAGE, mapperPackagePath.text)
+                PlatformUtil.setData(MyConstant.DAO_PACKAGE, daoPackagePath.text)
                 PlatformUtil.setData(MyConstant.MANAGER_MODULE, managerModule.text)
                 PlatformUtil.setData(MyConstant.MANAGER_PACKAGE, managerPackagePath.text)
+                val isMHCStaff = isMHCStaffCheck.isItemSelected("是")
+                PlatformUtil.setData(MyConstant.MHC_STAFF, isMHCStaff)
+
                 MyBatisGenConst.setConfig(
                         daoModule.text,
-                        doPackagePath.text,
-                        queryPackagePath.text,
-                        mapperPackagePath.text,
+                        daoPackagePath.text,
                         managerModule.text,
                         managerPackagePath.text,
+                        isMHCStaff,
                         project)
                 NotificationUtil.popInfo("路径配置修改成功", event)
             }

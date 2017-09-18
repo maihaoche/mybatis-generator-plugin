@@ -20,31 +20,25 @@ class MyBatisGenConst {
     companion object {
         var sConfigured = false
         // 包名
-        var DAO_MODULE = ""
-        // 工作目录
-        var DO_PACKAGE = ""
-        var QUERY_PACKAGE = ""
-        var MAPPER_PACKAGE = ""
-        var MAPPER_EXT_PACKAGE = ""
+        var sDaoModule = ""
+        var sDaoPackage = ""//do,query,mapper,mapper_ext所在的package名
+        var sManagerModule = ""
+        var sManagerPackage = ""
+        var sManagerImplPackage = ""
+        //  输出目录
+        var sDaoPackageDir = ""
+        var sBaseDir = ""//BaseCriteria,BaseQuery,PageResult所在的文件目录
+        var sMapperXmlDir = ""
+        var sMapperExtXmlDir = ""
+        var sDoJavaDir = ""
+        var sQueryJavaDir = ""
+        var sMapperJavaDir = ""
+        var sMapperExtJavaDir = ""
+        var sManagerJavaDir = ""
+        var sManagerImplJavaDir = ""
 
-        var MANAGER_MODULE = ""
-        var MANAGER_PACKAGE = ""
-        var MANAGER_IMPL_PACKAGE = ""
-        // mapper xml 输出目录
-        var MAPPER_XML_DIR = ""
-        // mapper-ext xml 输出目录
-        var MAPPER_EXT_XML_DIR = ""
-        // do/model 输出目录
-        var MAPPER_DO_DIR = ""
-        // query 输出目录
-        var MAPPER_QUERY_DIR = ""
-        // mapper java 输出目录
-        var MAPPER_JAVA_DIR = ""
-        // mapper-ext java 输出目录
-        var MAPPER_EXT_JAVA_DIR = ""
-        //manager输出目录
-        var MANAGER_JAVA_DIR = ""
-        var MANAGER_IMPL_JAVA_DIR = ""
+        //是否是mhc内部使用的代码
+        var sIsMHCStaff = false
 
         //模板路径
         val DO_TEMPLATE = "/template/do.txt"
@@ -55,6 +49,12 @@ class MyBatisGenConst {
         val MANAGER_IMPL_TEMPLATE = "/template/managerImpl.txt"
         val MAPPER_EXT_TEMPLATE = "/template/mapper-ext.txt"
         val SQLMAP_EXT_TEMPLATE = "/template/sqlmap-ext.txt"
+
+        val PAGERESULT_TEMPLATE = "/template/base/pageResult.txt"
+        val BASE_CRITERIA_TEMPLATE = "/template/base/baseCriteria.txt"
+        val CRITERIA_TEMPLATE = "/template/base/criteria.txt"
+        val BASE_QUERY_TEMPLATE = "/template/base/baseQuery.txt"
+
 
         val QUERY_PREFIX = "Query"
         val MAPPER_SUFFIX = "Mapper"
@@ -87,6 +87,7 @@ class MyBatisGenConst {
         val VP_MAPPER_EXT_SUFFIX = "extMapperSuffix"
         val VP_CLASS_NAME = "className"
         val VP_MAPPER_PROPERTY_NAME = "mapperPropertyName"
+        val VP_DAO_PACKAGE = "daoPackage"
         val VP_DO_PACKAGE = "doPackage"
         val VP_QUERY_PACKAGE = "queryPackage"
         val VP_MAPPER_PACKAGE = "mapperPackage"
@@ -122,88 +123,80 @@ class MyBatisGenConst {
 
             PlatformUtil.getData(MyConstant.DAO_MODULE, "").let {
                 if (it.isNullOrBlank()) {
-                    DAO_MODULE = ""
+                    sDaoModule = ""
                     onNullReturn()
                 } else {
-                    DAO_MODULE = it
+                    sDaoModule = it
                 }
             }
-            PlatformUtil.getData(MyConstant.DO_PACKAGE, "").let {
+            PlatformUtil.getData(MyConstant.DAO_PACKAGE, "").let {
                 if (it.isNullOrBlank()) {
-                    DO_PACKAGE = ""
+                    sDaoPackage = ""
                     onNullReturn()
                 } else {
-                    DO_PACKAGE = it
-                }
-            }
-            PlatformUtil.getData(MyConstant.QUERY_PACKAGE, "").let {
-                if (it.isNullOrBlank()) {
-                    QUERY_PACKAGE = ""
-                    onNullReturn()
-                } else {
-                    QUERY_PACKAGE = it
-                }
-            }
-            PlatformUtil.getData(MyConstant.MAPPER_PACKAGE, "").let {
-                if (it.isNullOrBlank()) {
-                    MAPPER_PACKAGE = ""
-                    onNullReturn()
-                } else {
-                    MAPPER_PACKAGE = it
+                    sDaoPackage = it
                 }
             }
             PlatformUtil.getData(MyConstant.MANAGER_MODULE, "").let {
                 if (it.isNullOrBlank()) {
-                    MANAGER_MODULE = ""
+                    sManagerModule = ""
                     onNullReturn()
                 } else {
-                    MANAGER_MODULE = it
+                    sManagerModule = it
                 }
             }
             PlatformUtil.getData(MyConstant.MANAGER_PACKAGE, "").let {
                 if (it.isNullOrBlank()) {
-                    MANAGER_PACKAGE = ""
+                    sManagerPackage = ""
                     onNullReturn()
                 } else {
-                    MANAGER_PACKAGE = it
+                    sManagerPackage = it
                 }
             }
-            setConfig(DAO_MODULE, DO_PACKAGE, QUERY_PACKAGE, MAPPER_PACKAGE, MANAGER_MODULE, MANAGER_PACKAGE, project)
+            PlatformUtil.getData(MyConstant.MHC_STAFF, false).let {
+                sIsMHCStaff = it
+            }
+            setConfig(sDaoModule,
+                    sDaoPackage,
+                    sManagerModule,
+                    sManagerPackage,
+                    sIsMHCStaff,
+                    project)
             return sConfigured
         }
 
         fun setConfig(
                 daoModule: String,
-                doPackage: String,
-                queryPackage: String,
-                mapperPackage: String,
+                daoPackage: String,
                 managerModule: String,
                 managerPackage: String,
+                isMHCStaff: Boolean,
                 project: Project?
         ) {
             if (null == project) {
                 return
             }
-            DAO_MODULE = daoModule
-            DO_PACKAGE = doPackage
-            QUERY_PACKAGE = queryPackage
-            MAPPER_PACKAGE = mapperPackage
-            MANAGER_MODULE = managerModule
-            MANAGER_PACKAGE = managerPackage
-            MAPPER_EXT_PACKAGE = MAPPER_PACKAGE + ".ext"
-            MANAGER_IMPL_PACKAGE = MANAGER_PACKAGE + ".impl"
-            var daoPath = project.baseDir.path + File.separator + DAO_MODULE
-            var managerPath = project.baseDir.path + File.separator + MANAGER_MODULE
+            sIsMHCStaff = isMHCStaff
+            sDaoModule = daoModule
+            sDaoPackage = daoPackage
+            sManagerModule = managerModule
+            sManagerPackage = managerPackage
+            sManagerImplPackage = sManagerPackage + ".impl"
+            sDaoPackageDir = project.baseDir.path + File.separator + sDaoModule
+            var managerPath = project.baseDir.path + File.separator + sManagerModule
             //资源文件路径
-            MAPPER_XML_DIR = daoPath + "/src/main/resources/mapper/"
-            MAPPER_EXT_XML_DIR = daoPath + "/src/main/resources/mapper/ext/"
+            sMapperXmlDir = sDaoPackageDir + "/src/main/resources/mapper/"
+            sMapperExtXmlDir = sDaoPackageDir + "/src/main/resources/mapper/ext/"
             //代码文件路径
-            MAPPER_DO_DIR = daoPath + "/src/main/java/" + getFilePathFromPackage(DO_PACKAGE)
-            MAPPER_QUERY_DIR = daoPath + "/src/main/java/" + getFilePathFromPackage(QUERY_PACKAGE)
-            MAPPER_JAVA_DIR = daoPath + "/src/main/java/" + getFilePathFromPackage(MAPPER_PACKAGE)
-            MAPPER_EXT_JAVA_DIR = daoPath + "/src/main/java/" + getFilePathFromPackage(MAPPER_EXT_PACKAGE)
-            MANAGER_JAVA_DIR = managerPath + "/src/main/java/" + getFilePathFromPackage(MANAGER_PACKAGE)
-            MANAGER_IMPL_JAVA_DIR = MANAGER_JAVA_DIR + "/impl"
+            sBaseDir = sDaoPackageDir + "/src/main/java/" + getFilePathFromPackage(sDaoPackage)
+            sDoJavaDir = sDaoPackageDir + "/src/main/java/" + getFilePathFromPackage(sDaoPackage) + "/model"
+            sQueryJavaDir = sDaoPackageDir + "/src/main/java/" + getFilePathFromPackage(sDaoPackage) + "/query"
+            sMapperJavaDir = sDaoPackageDir + "/src/main/java/" + getFilePathFromPackage(sDaoPackage) + "/mapper"
+            sMapperExtJavaDir = sDaoPackageDir + "/src/main/java/" + getFilePathFromPackage(sDaoPackage) + "/mapper/ext"
+            sManagerJavaDir = managerPath + "/src/main/java/" + getFilePathFromPackage(sManagerPackage) + "/manager"
+            sManagerImplJavaDir = sManagerJavaDir + "/impl"
+            //
+
             sConfigured = true
         }
 
@@ -212,22 +205,20 @@ class MyBatisGenConst {
         }
 
         fun clearConfig() {
-            DAO_MODULE = ""
-            DO_PACKAGE = ""
-            QUERY_PACKAGE = ""
-            MAPPER_PACKAGE = ""
-            MAPPER_EXT_PACKAGE = ""
-            MANAGER_MODULE = ""
-            MANAGER_PACKAGE = ""
-            MANAGER_IMPL_PACKAGE = ""
-            MAPPER_XML_DIR = ""
-            MAPPER_EXT_XML_DIR = ""
-            MAPPER_DO_DIR = ""
-            MAPPER_QUERY_DIR = ""
-            MAPPER_JAVA_DIR = ""
-            MANAGER_JAVA_DIR = ""
-            MANAGER_IMPL_JAVA_DIR = ""
-            MAPPER_EXT_JAVA_DIR = ""
+            sIsMHCStaff = false
+            sDaoModule = ""
+            sDaoPackage = ""
+            sManagerModule = ""
+            sManagerPackage = ""
+            sManagerImplPackage = ""
+            sMapperXmlDir = ""
+            sMapperExtXmlDir = ""
+            sDoJavaDir = ""
+            sQueryJavaDir = ""
+            sMapperJavaDir = ""
+            sManagerJavaDir = ""
+            sManagerImplJavaDir = ""
+            sMapperExtJavaDir = ""
             sConfigured = false
         }
 

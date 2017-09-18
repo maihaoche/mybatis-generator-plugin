@@ -39,4 +39,36 @@ DO，Query，Mapper，Manager,  Mapper.xml。前缀为：表名（驼峰），�
 * 拓展
 每个对象都可以创建一个子对象，包含在同级目录的ext子目录下。具体的实现可以自定义。
 
+* CodeExample
+```
+public class example {
+
+    @Autowired
+    private UserManager userManager;
+
+    public void findUser() {
+        //select DO by id
+        long userId = 1;
+        UserDO userDOById = userManager.selectByPrimaryKey(userId);
+
+        //select DO by query
+        UserQuery userQuery = new UserQuery();
+        userQuery.createCriteria()
+                .andUserNameLike("JonSnow%");
+        List<UserDO> userListResult = userManager.selectByQuery(userQuery);
+
+        //select DO by page
+        UserQuery pageQuery = new UserQuery();
+        pageQuery.setPageNo(1);
+        pageQuery.setPageSize(20);
+        userQuery.createCriteria()
+                .andUserNameLike("JonSnow%");
+        PageResult<UserDO> userPageResult = userManager.selectByQueryWithPage(userQuery);
+    }
+}
+```
+
+
+
+
 

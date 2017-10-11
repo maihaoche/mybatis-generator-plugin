@@ -301,6 +301,7 @@ class MybatisCore {
          */
         private fun getClassName(tableName: String): String {
             var t = tableName.toLowerCase()
+            t = t.replace(MyBatisGenConst.sTablePrefix, "")
             val arr = t.split("_".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
             val s = StringBuilder()
             for (anArr in arr) {

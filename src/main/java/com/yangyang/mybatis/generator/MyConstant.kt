@@ -19,6 +19,7 @@ class MyConstant {
         val DAO_PACKAGE = "dao_package"//dao的package名
         val MANAGER_MODULE = "namager_module"//manager所在的目录
         val MANAGER_PACKAGE = "manager_package"//manager生成目录
+        val TABLE_PREFIX = "table_prefix"//表名的前缀
         val MHC_STAFF = "mhc_staff"//是否生成卖好车内部的代码
 
         //-------------------------内部字段-------------------------

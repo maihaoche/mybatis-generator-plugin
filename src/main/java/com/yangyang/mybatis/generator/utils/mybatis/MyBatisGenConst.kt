@@ -25,6 +25,9 @@ class MyBatisGenConst {
         var sManagerModule = ""
         var sManagerPackage = ""
         var sManagerImplPackage = ""
+
+        var sTablePrefix = ""//表名的前缀
+
         //  输出目录
         var sDaoPackageDir = ""
         var sBaseDir = ""//BaseCriteria,BaseQuery,PageResult所在的文件目录
@@ -153,6 +156,16 @@ class MyBatisGenConst {
                     sManagerPackage = it
                 }
             }
+            PlatformUtil.getData(MyConstant.TABLE_PREFIX, "").let {
+                if (it.isNullOrBlank()) {
+                    sTablePrefix = ""
+                    onNullReturn()
+                } else {
+                    sTablePrefix = it
+                }
+            }
+
+
             PlatformUtil.getData(MyConstant.MHC_STAFF, false).let {
                 sIsMHCStaff = it
             }
@@ -160,6 +173,7 @@ class MyBatisGenConst {
                     sDaoPackage,
                     sManagerModule,
                     sManagerPackage,
+                    sTablePrefix,
                     sIsMHCStaff,
                     project)
             return sConfigured
@@ -170,6 +184,7 @@ class MyBatisGenConst {
                 daoPackage: String,
                 managerModule: String,
                 managerPackage: String,
+                tablePrefix:String,
                 isMHCStaff: Boolean,
                 project: Project?
         ) {
@@ -181,6 +196,7 @@ class MyBatisGenConst {
             sDaoPackage = daoPackage
             sManagerModule = managerModule
             sManagerPackage = managerPackage
+            sTablePrefix = tablePrefix
             sManagerImplPackage = sManagerPackage + ".impl"
             sDaoPackageDir = project.baseDir.path + File.separator + sDaoModule
             var managerPath = project.baseDir.path + File.separator + sManagerModule
@@ -211,6 +227,7 @@ class MyBatisGenConst {
             sManagerModule = ""
             sManagerPackage = ""
             sManagerImplPackage = ""
+            sTablePrefix = ""
             sMapperXmlDir = ""
             sMapperExtXmlDir = ""
             sDoJavaDir = ""

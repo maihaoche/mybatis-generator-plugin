@@ -38,6 +38,7 @@ class ActionConfigPath : AnAction() {
         val daoPackagePath = UIUtil.addTextInputToPanel("DO,Query,Mapper所在的package名:        ", MyConstant.DAO_PACKAGE, content)
         val managerModule = UIUtil.addTextInputToPanel("Manager所在的module名:        ", MyConstant.MANAGER_MODULE, content)
         val managerPackagePath = UIUtil.addTextInputToPanel("Manager所在的package:        ", MyConstant.MANAGER_PACKAGE, content)
+        val tablePrefix = UIUtil.addTextInputToPanel("表名的前缀:        ", MyConstant.TABLE_PREFIX, content)
         content.add(JLabel("是否用于卖好车内部代码:        "), ExternalSystemUiUtil.getFillLineConstraints(0))
         // 卖好车内部圆通的选择
         val isMHCStaffCheck = CheckBoxList<String>()
@@ -61,6 +62,7 @@ class ActionConfigPath : AnAction() {
             daoPackagePath.text = ""
             managerModule.text = ""
             managerPackagePath.text = ""
+            tablePrefix.text = ""
         }
         clearCacheBtn.border = IdeBorderFactory.createEmptyBorder(14, 4, 4, 4)
         content.add(clearCacheBtn, ExternalSystemUiUtil.getLabelConstraints(0))
@@ -80,6 +82,7 @@ class ActionConfigPath : AnAction() {
                 PlatformUtil.setData(MyConstant.DAO_PACKAGE, daoPackagePath.text)
                 PlatformUtil.setData(MyConstant.MANAGER_MODULE, managerModule.text)
                 PlatformUtil.setData(MyConstant.MANAGER_PACKAGE, managerPackagePath.text)
+                PlatformUtil.setData(MyConstant.TABLE_PREFIX, tablePrefix.text)
                 val isMHCStaff = isMHCStaffCheck.isItemSelected("是")
                 PlatformUtil.setData(MyConstant.MHC_STAFF, isMHCStaff)
 
@@ -88,6 +91,7 @@ class ActionConfigPath : AnAction() {
                         daoPackagePath.text,
                         managerModule.text,
                         managerPackagePath.text,
+                        tablePrefix.text,
                         isMHCStaff,
                         project)
                 NotificationUtil.popInfo("路径配置修改成功", event)

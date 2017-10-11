@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>com.maihaoche.mclaren.mybatisgenerator</id>
     <name>MybatisGenerator</name>
-    <version>2.0.0</version>
+    <version>2.1.0</version>
     <vendor email="yangyang1@maihaoche.com" url="http://b.maihaoche.com">MaiHaoChe.</vendor>
 
     <description><![CDATA[
@@ -11,7 +11,7 @@
     ]]></description>
 
     <change-notes><![CDATA[
-      Version 2.0.0<br>
+      Version 2.1.0<br>
       The version fix some serious bugs,i.e, no linefeed and blocking the ide.<br>
       In addition, this version add a function to choose which module to put the manger codes,<br>
       which is necessary for many projects.

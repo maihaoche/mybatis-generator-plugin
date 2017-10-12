@@ -446,7 +446,29 @@ class MybatisCore {
                 tableLocal = tableLocal.replace(MyBatisGenConst.SHARDING_SUFFIX_REG.toRegex(), "")
             }
             val className = getClassName(tableLocal)
+
+
             val param = HashMap<String, Any>()
+
+            var fileGenerate = { packagePath: String, fileName: String, templatePath: String ->
+                File(packagePath).mkdirs()
+                if (!File(packagePath).exists()) {
+                    NotificationUtil.info(String.format("目录 %s 创建失败", packagePath), project)
+                } else {
+                    val filePath = packagePath + File.separator + fileName
+                    val resultFile = File(filePath)
+                    if (!resultFile.exists()) {
+                        if (resultFile.createNewFile()) {
+                            val resultStr = merge(readFileToString(templatePath), param)
+                            writeStringToFile(resultFile, resultStr, project)
+                        } else {
+                            NotificationUtil.error(String.format("文件 %s 创建失败", filePath))
+                        }
+                    } else {
+                        NotificationUtil.error(String.format("文件 %s 已经存在,不替换旧文件", filePath))
+                    }
+                }
+            }
             if (MyBatisGenConst.sIsMHCStaff) {
                 param.put(MyBatisGenConst.VP_DAO_PACKAGE, "com.subaru.common.query")
             } else {
@@ -478,7 +500,10 @@ class MybatisCore {
 
             param.put(MyBatisGenConst.VP_SERIAL_VERSION_UID2, "" + (Math.random() * 1000000000000000000L).toLong())
 
-            // 获取字段名不包含 id gmt_create gmt_modified TODO 去掉主键
+            //先生成do的结果，再去掉主键
+            //DO
+            fileGenerate(MyBatisGenConst.sDoJavaDir, className + MyBatisGenConst.DO_SUFFIX + ".java", MyBatisGenConst.DO_TEMPLATE)
+
             val sqlmapParamList = getSqlmapParamList(paramList, pks.toString())
             param.put(MyBatisGenConst.VP_LIST, sqlmapParamList)
 
@@ -489,25 +514,7 @@ class MybatisCore {
             param.put(MyBatisGenConst.VP_PRIMARY_KEY, pks.toString())
             param.put(MyBatisGenConst.VP_PROP_PRIMARY_KEY, getPropName(pks))
 
-            var fileGenerate = { packagePath: String, fileName: String, templatePath: String ->
-                File(packagePath).mkdirs()
-                if (!File(packagePath).exists()) {
-                    NotificationUtil.info(String.format("目录 %s 创建失败", packagePath), project)
-                } else {
-                    val filePath = packagePath + File.separator + fileName
-                    val resultFile = File(filePath)
-                    if (!resultFile.exists()) {
-                        if (resultFile.createNewFile()) {
-                            val resultStr = merge(readFileToString(templatePath), param)
-                            writeStringToFile(resultFile, resultStr, project)
-                        } else {
-                            NotificationUtil.error(String.format("文件 %s 创建失败", filePath))
-                        }
-                    } else {
-                        NotificationUtil.error(String.format("文件 %s 已经存在,不替换旧文件", filePath))
-                    }
-                }
-            }
+
             //如果不是mhc内部使用的代码，还需要额外生成几个基础类的文件
             if (!MyBatisGenConst.sIsMHCStaff) {
                 //PageResult
@@ -519,8 +526,7 @@ class MybatisCore {
                 //BaseQuery
                 fileGenerate(MyBatisGenConst.sBaseDir, "BaseQuery.java", MyBatisGenConst.BASE_QUERY_TEMPLATE)
             }
-            //DO
-            fileGenerate(MyBatisGenConst.sDoJavaDir, className + MyBatisGenConst.DO_SUFFIX + ".java", MyBatisGenConst.DO_TEMPLATE)
+
             //Query
             fileGenerate(MyBatisGenConst.sQueryJavaDir, className + MyBatisGenConst.QUERY_PREFIX + ".java", MyBatisGenConst.QUERY_TEMPLATE)
             //Mapper
